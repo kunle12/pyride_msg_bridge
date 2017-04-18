@@ -1,0 +1,3 @@
+[submodule "pyconnect"]
+	path = pyconnect
+	url = https://github.com/uts-magic-lab/pyconnect

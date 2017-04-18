@@ -1,0 +1,6 @@
+<launch>
+  <node pkg="pyride_msg_bridge" type="pyride_msg_bridge" name="pyride_msg_bridge" output="screen">
+    <remap from="node_status" to="pyride/node_status" />
+    <remap from="node_message" to="pyride/node_message" />
+  </node>
+</launch>
