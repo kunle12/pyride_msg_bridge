@@ -13,15 +13,16 @@
 #include <sys/types.h>
 #include <unistd.h>
 
-#include <iostream>
 #include <boost/shared_ptr.hpp>
-#include <boost/thread/mutex.hpp>
+#include <boost/thread.hpp>
 
 #include <ros/ros.h>
+#include <image_transport/image_transport.h>
 #include <pyride_common_msgs/NodeStatus.h>
 
 #include "PyConnectWrapper.h"
 #include "PyConnectNetComm.h"
+#include "ImageDataReceiver.h"
 
 using namespace std;
 using namespace ros;
@@ -31,7 +32,7 @@ namespace pyride {
 
 #define PYCONNECT_MODULE_NAME PyRIDEMsgBridge
 
-class PyRIDEMsgBridge : public OObject, FDSetOwner
+class PyRIDEMsgBridge : public OObject
 {
 public:
   PyRIDEMsgBridge();
@@ -52,8 +53,12 @@ public:
   PYCONNECT_METHOD_ACCESS_VOID_RETURN( sendNodeMessage, ARGTYPE( string ), ARGTYPE( string ), ARGTYPE( int ) );
 
   std::string NodeStatusUpdate;
+  int VideoPort;
+  bool IsImageStreaming;
 
   PYCONNECT_RO_ATTRIBUTE( NodeStatusUpdate );
+  PYCONNECT_RO_ATTRIBUTE( VideoPort );
+  PYCONNECT_RO_ATTRIBUTE( IsImageStreaming );
 
 private:
   NodeHandle priNode_;
@@ -61,9 +66,26 @@ private:
   Publisher nodePub_;
   Subscriber nodeSub_;
 
+  image_transport::ImageTransport imgTrans_;
+  image_transport::Publisher imgPub_;
+
+  boost::thread * image_grab_thread_;
+  boost::thread * pyconnect_thread_;
+
+  pyride_remote::ImageDataReceiver * imageReceiver_;
+
+  int imageWidth_;
+  int imageHeight_;
+  long imgcnt_;
+
   bool isRunning_;
-  int maxFD_;
-  fd_set masterFDSet_;
+  int srvRequests_;
+
+  void startImageStream();
+  void stopImageStream();
+
+  void doImageGrabbing();
+  void processPyConnectMessage();
 
   void nodeStatusCB( const pyride_common_msgs::NodeStatusConstPtr & msg );
 };

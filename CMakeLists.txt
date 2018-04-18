@@ -2,15 +2,18 @@ cmake_minimum_required(VERSION 2.8.3)
 project(pyride_msg_bridge)
 
 ## Add support for C++11, supported in ROS Kinetic and newer
-add_definitions(-DLINUX -DUSE_ROS -DRELEASE -DPRODUCT_RELEASE -DHAS_OWN_MAIN_LOOP)
+add_definitions(-DLINUX -DUSE_ROS -DRELEASE -DPRODUCT_RELEASE)
 
 ## Find catkin macros and libraries
 ## if COMPONENTS list like find_package(catkin REQUIRED COMPONENTS xyz)
 ## is used, also find other catkin packages
 find_package(catkin REQUIRED COMPONENTS
+  std_msgs
+  cv_bridge
+  image_transport
   pyride_common_msgs
   roscpp
-  std_msgs
+  sensor_msgs
 )
 
 ## System dependencies are found with CMake's conventions
@@ -119,6 +122,7 @@ catkin_package(
 include_directories(
   include
   pyconnect
+  pyridecore
   ${catkin_INCLUDE_DIRS}
 )
 
@@ -137,6 +141,8 @@ include_directories(
 ## The recommended prefix ensures that target names across packages don't collide
 add_executable(${PROJECT_NAME}
                               src/main.cpp
+                              pyridecore/RTPDataReceiver.cpp
+                              pyridecore/ImageDataReceiver.cpp
                               pyconnect/PyConnectCommon.cpp
                               pyconnect/PyConnectObjComm.cpp
                               pyconnect/PyConnectNetComm.cpp
@@ -155,7 +161,7 @@ add_executable(${PROJECT_NAME}
 
 ## Specify libraries to link a library or executable target against
 target_link_libraries(${PROJECT_NAME}
-  pthread crypto
+  pthread ucommon commoncpp ccrtp crypto jpeg
   ${catkin_LIBRARIES}
 )
 
