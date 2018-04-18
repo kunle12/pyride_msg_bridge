@@ -52,13 +52,17 @@ public:
 
   PYCONNECT_METHOD_ACCESS_VOID_RETURN( sendNodeMessage, ARGTYPE( string ), ARGTYPE( string ), ARGTYPE( int ) );
 
-  std::string NodeStatusUpdate;
+  std::string NodeStatus;
   int VideoPort;
   bool IsImageStreaming;
+  int AudioPort;
+  bool IsAudioStreaming;
 
-  PYCONNECT_RO_ATTRIBUTE( NodeStatusUpdate );
+  PYCONNECT_RO_ATTRIBUTE( NodeStatus );
   PYCONNECT_RO_ATTRIBUTE( VideoPort );
   PYCONNECT_RO_ATTRIBUTE( IsImageStreaming );
+  PYCONNECT_RO_ATTRIBUTE( AudioPort );
+  PYCONNECT_RO_ATTRIBUTE( IsAudioStreaming );
 
 private:
   NodeHandle priNode_;
