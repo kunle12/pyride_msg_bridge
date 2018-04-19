@@ -42,14 +42,14 @@ public:
   void init();
   void fini();
 
-  void sendNodeMessage( const std::string & node, const std::string & command, const int priority );
+  void sendNodeMessage( const std::string & node, const std::string & command );
 
   void continueProcessing();
 
   PYCONNECT_NETCOMM_DECLARE;
   PYCONNECT_WRAPPER_DECLARE;
 
-  PYCONNECT_METHOD_ACCESS_VOID_RETURN( sendNodeMessage, ARGTYPE( string ), ARGTYPE( string ), ARGTYPE( int ) );
+  PYCONNECT_METHOD_ACCESS_VOID_RETURN( sendNodeMessage, ARGTYPE( string ), ARGTYPE( string ) );
 
   std::string NodeStatus;
   int VideoPort;

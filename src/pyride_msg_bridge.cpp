@@ -35,6 +35,7 @@ PyRIDEMsgBridge::PyRIDEMsgBridge() :
   IsAudioStreaming( false ),
   imgTrans_( priNode_ ),
   imgRequests_( 0 ),
+  audRequests_( 0 ),
   imgcnt_( 0L ),
   isRunning_( false )
 {
@@ -46,7 +47,7 @@ PyRIDEMsgBridge::PyRIDEMsgBridge() :
   PYCONNECT_RO_ATTRIBUTE_DECLARE( IsAudioStreaming, bool, "audio data streaming flag." );
 
   PYCONNECT_METHOD_DECLARE( sendNodeMessage, void, "send message to a ROS node through pyride_common_msgs", ARG( node, std::string, "node name" ) \
-      ARG( command, std::string, "command message to the node" ) ARG( priority, int, "message priority" ) );
+      ARG( command, std::string, "command message to the node" ) );
 }
 
 PyRIDEMsgBridge::~PyRIDEMsgBridge()
@@ -84,11 +85,13 @@ void PyRIDEMsgBridge::fini()
   isRunning_ = false; // not really necessary
   imgRequests_ = 1; // reset requests
   this->stopImageStream();
+  audRequests_ = 1;
+  this->stopAudioStream();
 
   nodeSub_.shutdown();
   PYCONNECT_MODULE_FINI;
   PYCONNECT_NETCOMM_FINI;
-  pyconnect_thread_->join();
+  //pyconnect_thread_->join();
   delete pyconnect_thread_;
   pyconnect_thread_ = NULL;
 }
@@ -106,18 +109,18 @@ void PyRIDEMsgBridge::nodeStatusCB( const pyride_common_msgs::NodeStatusConstPtr
 
   // put in a json string format
   ss << "{\"node\": \"" << msg->node_id << "\", \"timestamp\": " << ((double)msg->header.stamp.sec + (double)msg->header.stamp.nsec / 1E9);
-  ss << ", \"message\": \"" << msg->status_text << "\", \"priority\": " << msg->priority << "}";
+  ss << ", \"message\": \"" << msg->status_text << "\", \"priority\": " << (int)msg->priority << "}";
 
   NodeStatus = ss.str();
   PYCONNECT_ATTRIBUTE_UPDATE( NodeStatus );
 }
 
-void PyRIDEMsgBridge::sendNodeMessage( const std::string & node, const std::string & command, const int priority )
+void PyRIDEMsgBridge::sendNodeMessage( const std::string & node, const std::string & command )
 {
   pyride_common_msgs::NodeMessage msg;
   msg.header.stamp = ros::Time::now();
   msg.node_id = node;
-  msg.priority = priority;
+  msg.priority = 2;
   msg.command = command;
 
   nodePub_.publish( msg );
@@ -168,7 +171,7 @@ void PyRIDEMsgBridge::doImageGrabbing()
 void PyRIDEMsgBridge::stopImageStream()
 {
   imgRequests_--;
-  if (imgRequests_ > 0)
+  if (imgRequests_ > 0 || !IsImageStreaming)
     return;
 
   IsImageStreaming = false;
@@ -208,7 +211,7 @@ void PyRIDEMsgBridge::doAudioGrabbing()
 {
   unsigned char * audioData = new unsigned char[128 * kAudioFrameSize * sizeof(short)];
 
-  while (isRunning_) {
+  while (IsAudioStreaming) {
     int datasize = audioReceiver_->grabAudioStreamData( (short *)audioData );
     if (datasize == 0) {
       continue;
@@ -228,7 +231,7 @@ void PyRIDEMsgBridge::doAudioGrabbing()
 void PyRIDEMsgBridge::stopAudioStream()
 {
   audRequests_--;
-  if (audRequests_ > 0)
+  if (audRequests_ > 0 || !IsAudioStreaming)
     return;
 
   IsAudioStreaming = false;
