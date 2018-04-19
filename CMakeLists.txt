@@ -14,6 +14,7 @@ find_package(catkin REQUIRED COMPONENTS
   pyride_common_msgs
   roscpp
   sensor_msgs
+  audio_common_msgs
 )
 
 ## System dependencies are found with CMake's conventions
@@ -143,6 +144,7 @@ add_executable(${PROJECT_NAME}
                               src/main.cpp
                               pyridecore/RTPDataReceiver.cpp
                               pyridecore/ImageDataReceiver.cpp
+                              pyridecore/AudioDataReceiver.cpp
                               pyconnect/PyConnectCommon.cpp
                               pyconnect/PyConnectObjComm.cpp
                               pyconnect/PyConnectNetComm.cpp
@@ -159,9 +161,13 @@ add_executable(${PROJECT_NAME}
 ## same as for the library above
 # add_dependencies(${PROJECT_NAME}_node ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 
+add_library(celt STATIC IMPORTED)
+set_target_properties(celt PROPERTIES IMPORTED_LOCATION ${PROJECT_SOURCE_DIR}/lib/libcelt0.a)
+
 ## Specify libraries to link a library or executable target against
 target_link_libraries(${PROJECT_NAME}
-  pthread ucommon commoncpp ccrtp crypto jpeg
+  pthread celt #ucommon commoncpp ccrtp crypto jpeg
+  ccrtp1 ccgnu2 crypto jpeg
   ${catkin_LIBRARIES}
 )
 

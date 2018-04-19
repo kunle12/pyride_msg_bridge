@@ -12,6 +12,8 @@
 #include <cv_bridge/cv_bridge.h>
 
 #include <pyride_common_msgs/NodeMessage.h>
+#include <audio_common_msgs/AudioData.h>
+
 #include "pyride_msg_bridge.h"
 
 namespace pyride {
@@ -22,6 +24,9 @@ static const int kVideoStreamPort = 43096;
 static const int kAudioStreamPort = 42096;
 static const int kImageWidth = 640;
 static const int kImageHeight = 480;
+static const int kAudioSampleRate = 16000;
+static const int kAudioFrameSize = 256;
+static const int kAudioPacketBytes = 46;
 
 PyRIDEMsgBridge::PyRIDEMsgBridge() :
   VideoPort( kVideoStreamPort ),
@@ -29,7 +34,7 @@ PyRIDEMsgBridge::PyRIDEMsgBridge() :
   AudioPort( kAudioStreamPort ),
   IsAudioStreaming( false ),
   imgTrans_( priNode_ ),
-  srvRequests_( 0 ),
+  imgRequests_( 0 ),
   imgcnt_( 0L ),
   isRunning_( false )
 {
@@ -61,6 +66,9 @@ void PyRIDEMsgBridge::init()
   imgPub_ = imgTrans_.advertise( "/pyride/image", 1,
       boost::bind( &PyRIDEMsgBridge::startImageStream, this ),
       boost::bind( &PyRIDEMsgBridge::stopImageStream, this) );
+  audioPub_ = priNode_.advertise<audio_common_msgs::AudioData>( "pyride/audio", 1,
+      boost::bind( &PyRIDEMsgBridge::startAudioStream, this ),
+      boost::bind( &PyRIDEMsgBridge::stopAudioStream, this) );
 
   PYCONNECT_NETCOMM_INIT;
   PYCONNECT_NETCOMM_ENABLE_NET;
@@ -74,7 +82,7 @@ void PyRIDEMsgBridge::init()
 void PyRIDEMsgBridge::fini()
 {
   isRunning_ = false; // not really necessary
-  srvRequests_ = 1; // reset requests
+  imgRequests_ = 1; // reset requests
   this->stopImageStream();
 
   nodeSub_.shutdown();
@@ -115,19 +123,14 @@ void PyRIDEMsgBridge::sendNodeMessage( const std::string & node, const std::stri
   nodePub_.publish( msg );
 }
 
-void PyRIDEMsgBridge::stopProcess()
-{
-  isRunning_ = false;
-}
-
 void PyRIDEMsgBridge::startImageStream()
 {
   if (!isRunning_) {
     ROS_ERROR( "PyRIDE message bridge is not running!\n" );
     return;
   }
-  srvRequests_ ++;
-  if (srvRequests_ > 1)
+  imgRequests_ ++;
+  if (imgRequests_ > 1)
     return;
 
   IsImageStreaming = true;
@@ -162,15 +165,10 @@ void PyRIDEMsgBridge::doImageGrabbing()
   }
 }
 
-void PyRIDEMsgBridge::processPyConnectMessage()
-{
-  PYCONNECT_NETCOMM_PROCESS_DATA;
-}
-
 void PyRIDEMsgBridge::stopImageStream()
 {
-  srvRequests_--;
-  if (srvRequests_ > 0)
+  imgRequests_--;
+  if (imgRequests_ > 0)
     return;
 
   IsImageStreaming = false;
@@ -185,6 +183,71 @@ void PyRIDEMsgBridge::stopImageStream()
   delete imageReceiver_;
   imageReceiver_ = NULL;
   ROS_INFO( "Stop image streaming service." );
+}
+
+void PyRIDEMsgBridge::startAudioStream()
+{
+  if (!isRunning_) {
+    ROS_ERROR( "PyRIDE message bridge is not running!\n" );
+    return;
+  }
+  audRequests_ ++;
+  if (audRequests_ > 1)
+    return;
+
+  IsAudioStreaming = true;
+
+  PYCONNECT_ATTRIBUTE_UPDATE( IsAudioStreaming );
+
+  audioReceiver_ = new AudioDataReceiver( AudioPort, kAudioSampleRate, kAudioFrameSize, kAudioPacketBytes );
+  audio_grab_thread_ = new boost::thread( &PyRIDEMsgBridge::doAudioGrabbing, this );
+  ROS_INFO( "Start audio data streaming service." );
+}
+
+void PyRIDEMsgBridge::doAudioGrabbing()
+{
+  unsigned char * audioData = new unsigned char[128 * kAudioFrameSize * sizeof(short)];
+
+  while (isRunning_) {
+    int datasize = audioReceiver_->grabAudioStreamData( (short *)audioData );
+    if (datasize == 0) {
+      continue;
+    }
+    audio_common_msgs::AudioData msg;
+
+    // double ts = double(now.tv_sec) + (double(now.tv_usec) / 1000000.0);
+    msg.data.resize( datasize );
+    memcpy( &msg.data[0], audioData, datasize );
+
+    audioPub_.publish( msg );
+  }
+  delete [] audioData;
+
+}
+
+void PyRIDEMsgBridge::stopAudioStream()
+{
+  audRequests_--;
+  if (audRequests_ > 0)
+    return;
+
+  IsAudioStreaming = false;
+
+  PYCONNECT_ATTRIBUTE_UPDATE( IsAudioStreaming );
+
+  if (audio_grab_thread_) {
+    audio_grab_thread_->join();
+    delete audio_grab_thread_;
+    audio_grab_thread_ = NULL;
+  }
+  delete audioReceiver_;
+  audioReceiver_ = NULL;
+  ROS_INFO( "Stop audio data streaming service." );
+}
+
+void PyRIDEMsgBridge::processPyConnectMessage()
+{
+  PYCONNECT_NETCOMM_PROCESS_DATA;
 }
 
 void PyRIDEMsgBridge::continueProcessing()

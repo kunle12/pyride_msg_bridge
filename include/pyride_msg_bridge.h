@@ -23,6 +23,7 @@
 #include "PyConnectWrapper.h"
 #include "PyConnectNetComm.h"
 #include "ImageDataReceiver.h"
+#include "AudioDataReceiver.h"
 
 using namespace std;
 using namespace ros;
@@ -40,8 +41,6 @@ public:
 
   void init();
   void fini();
-
-  void stopProcess();
 
   void sendNodeMessage( const std::string & node, const std::string & command, const int priority );
 
@@ -73,22 +72,31 @@ private:
   image_transport::ImageTransport imgTrans_;
   image_transport::Publisher imgPub_;
 
+  Publisher audioPub_;
+
   boost::thread * image_grab_thread_;
+  boost::thread * audio_grab_thread_;
   boost::thread * pyconnect_thread_;
 
   pyride_remote::ImageDataReceiver * imageReceiver_;
+  pyride_remote::AudioDataReceiver * audioReceiver_;
 
   int imageWidth_;
   int imageHeight_;
   long imgcnt_;
 
   bool isRunning_;
-  int srvRequests_;
+  int imgRequests_;
+  int audRequests_;
 
   void startImageStream();
   void stopImageStream();
 
+  void startAudioStream();
+  void stopAudioStream();
+
   void doImageGrabbing();
+  void doAudioGrabbing();
   void processPyConnectMessage();
 
   void nodeStatusCB( const pyride_common_msgs::NodeStatusConstPtr & msg );
