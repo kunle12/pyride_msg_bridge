@@ -17,13 +17,17 @@
 #include <boost/thread.hpp>
 
 #include <ros/ros.h>
+#ifndef NO_MEDIA
 #include <image_transport/image_transport.h>
+#endif
 #include <pyride_common_msgs/NodeStatus.h>
 
 #include "PyConnectWrapper.h"
 #include "PyConnectNetComm.h"
+#ifndef NO_MEDIA
 #include "ImageDataReceiver.h"
 #include "AudioDataReceiver.h"
+#endif
 
 using namespace std;
 using namespace ros;
@@ -52,16 +56,20 @@ public:
   PYCONNECT_METHOD_ACCESS_VOID_RETURN( sendNodeMessage, ARGTYPE( string ), ARGTYPE( string ) );
 
   std::string NodeStatus;
+#ifndef NO_MEDIA
   int VideoPort;
   bool IsImageStreaming;
   int AudioPort;
   bool IsAudioStreaming;
+#endif
 
   PYCONNECT_RO_ATTRIBUTE( NodeStatus );
+#ifndef NO_MEDIA
   PYCONNECT_RO_ATTRIBUTE( VideoPort );
   PYCONNECT_RO_ATTRIBUTE( IsImageStreaming );
   PYCONNECT_RO_ATTRIBUTE( AudioPort );
   PYCONNECT_RO_ATTRIBUTE( IsAudioStreaming );
+#endif
 
 private:
   NodeHandle priNode_;
@@ -69,6 +77,7 @@ private:
   Publisher nodePub_;
   Subscriber nodeSub_;
 
+#ifndef NO_MEDIA
   image_transport::ImageTransport imgTrans_;
   image_transport::Publisher imgPub_;
 
@@ -76,16 +85,21 @@ private:
 
   boost::thread * image_grab_thread_;
   boost::thread * audio_grab_thread_;
+#endif
   boost::thread * pyconnect_thread_;
 
+#ifndef NO_MEDIA
   pyride_remote::ImageDataReceiver * imageReceiver_;
   pyride_remote::AudioDataReceiver * audioReceiver_;
+#endif
 
+  bool isRunning_;
+
+#ifndef NO_MEDIA
   int imageWidth_;
   int imageHeight_;
   long imgcnt_;
 
-  bool isRunning_;
   int imgRequests_;
   int audRequests_;
 
@@ -97,6 +111,8 @@ private:
 
   void doImageGrabbing();
   void doAudioGrabbing();
+#endif
+
   void processPyConnectMessage();
 
   void nodeStatusCB( const pyride_common_msgs::NodeStatusConstPtr & msg );

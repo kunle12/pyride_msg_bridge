@@ -3,6 +3,7 @@ project(pyride_msg_bridge)
 
 ## Add support for C++11, supported in ROS Kinetic and newer
 add_definitions(-DLINUX -DUSE_ROS -DRELEASE -DPRODUCT_RELEASE)
+#add_definitions(-DNO_MEDIA)
 
 ## Find catkin macros and libraries
 ## if COMPONENTS list like find_package(catkin REQUIRED COMPONENTS xyz)
@@ -166,8 +167,10 @@ set_target_properties(celt PROPERTIES IMPORTED_LOCATION ${PROJECT_SOURCE_DIR}/li
 
 ## Specify libraries to link a library or executable target against
 target_link_libraries(${PROJECT_NAME}
-  pthread celt #ucommon commoncpp ccrtp crypto jpeg
-  ccrtp1 ccgnu2 crypto jpeg
+  pthread 
+  celt
+  ucommon commoncpp ccrtp crypto jpeg
+  #ccrtp1 ccgnu2 crypto jpeg
   ${catkin_LIBRARIES}
 )
 

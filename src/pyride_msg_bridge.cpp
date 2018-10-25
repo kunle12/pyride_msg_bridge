@@ -6,18 +6,20 @@
 //  Copyright (c) 2017 Xun Wang. All rights reserved.
 //
 
+#ifndef NO_MEDIA
 #include <sensor_msgs/image_encodings.h>
 #include <opencv2/core/core.hpp>
 #include <opencv2/imgproc/imgproc.hpp>
 #include <cv_bridge/cv_bridge.h>
+#include <audio_common_msgs/AudioData.h>
+#endif
 
 #include <pyride_common_msgs/NodeMessage.h>
-#include <audio_common_msgs/AudioData.h>
-
 #include "pyride_msg_bridge.h"
 
 namespace pyride {
 
+#ifndef NO_MEDIA
 using namespace pyride_remote;
 
 static const int kVideoStreamPort = 43096;
@@ -27,8 +29,10 @@ static const int kImageHeight = 480;
 static const int kAudioSampleRate = 16000;
 static const int kAudioFrameSize = 256;
 static const int kAudioPacketBytes = 46;
+#endif
 
 PyRIDEMsgBridge::PyRIDEMsgBridge() :
+#ifndef NO_MEDIA
   VideoPort( kVideoStreamPort ),
   IsImageStreaming( false ),
   AudioPort( kAudioStreamPort ),
@@ -37,14 +41,17 @@ PyRIDEMsgBridge::PyRIDEMsgBridge() :
   imgRequests_( 0 ),
   audRequests_( 0 ),
   imgcnt_( 0L ),
+#endif
   isRunning_( false )
 {
   PYCONNECT_DECLARE_MODULE( PyRIDEMsgBridge, "A ROS bridge to connect (Non-ROS) PyRIDE with ROS ecosystem." );
   PYCONNECT_RO_ATTRIBUTE_DECLARE( NodeStatus, std::string, "Node status update message" );
+#ifndef NO_MEDIA
   PYCONNECT_RO_ATTRIBUTE_DECLARE( VideoPort, int, "UDP port for receiving image stream." );
   PYCONNECT_RO_ATTRIBUTE_DECLARE( IsImageStreaming, bool, "image streaming flag." );
   PYCONNECT_RO_ATTRIBUTE_DECLARE( AudioPort, int, "UDP port for receiving audio data stream." );
   PYCONNECT_RO_ATTRIBUTE_DECLARE( IsAudioStreaming, bool, "audio data streaming flag." );
+#endif
 
   PYCONNECT_METHOD_DECLARE( sendNodeMessage, void, "send message to a ROS node through pyride_common_msgs", ARG( node, std::string, "node name" ) \
       ARG( command, std::string, "command message to the node" ) );
@@ -57,19 +64,23 @@ PyRIDEMsgBridge::~PyRIDEMsgBridge()
 
 void PyRIDEMsgBridge::init()
 {
+#ifndef NO_MEDIA
   priNode_.param( "image_data_port", VideoPort, kVideoStreamPort );
   priNode_.param( "audio_data_port", AudioPort, kAudioStreamPort );
   priNode_.param( "image_data_width", imageWidth_, kImageWidth );
   priNode_.param( "image_data_height", imageHeight_, kImageHeight );
 
-  nodePub_ = priNode_.advertise<pyride_common_msgs::NodeMessage>( "pyride/node_message", 5 );
-  nodeSub_ = priNode_.subscribe( "pyride/node_status", 10, &PyRIDEMsgBridge::nodeStatusCB, this );
   imgPub_ = imgTrans_.advertise( "/pyride/image", 1,
       boost::bind( &PyRIDEMsgBridge::startImageStream, this ),
       boost::bind( &PyRIDEMsgBridge::stopImageStream, this) );
   audioPub_ = priNode_.advertise<audio_common_msgs::AudioData>( "pyride/audio", 1,
       boost::bind( &PyRIDEMsgBridge::startAudioStream, this ),
       boost::bind( &PyRIDEMsgBridge::stopAudioStream, this) );
+  ROS_INFO( "Video and Audio streaming capabilities are enabled." );
+#endif
+
+  nodePub_ = priNode_.advertise<pyride_common_msgs::NodeMessage>( "pyride/node_message", 5 );
+  nodeSub_ = priNode_.subscribe( "pyride/node_status", 10, &PyRIDEMsgBridge::nodeStatusCB, this );
 
   PYCONNECT_NETCOMM_INIT;
   PYCONNECT_NETCOMM_ENABLE_NET;
@@ -83,10 +94,12 @@ void PyRIDEMsgBridge::init()
 void PyRIDEMsgBridge::fini()
 {
   isRunning_ = false; // not really necessary
+#ifndef NO_MEDIA
   imgRequests_ = 1; // reset requests
   this->stopImageStream();
   audRequests_ = 1;
   this->stopAudioStream();
+#endif
 
   nodeSub_.shutdown();
   PYCONNECT_MODULE_FINI;
@@ -126,6 +139,7 @@ void PyRIDEMsgBridge::sendNodeMessage( const std::string & node, const std::stri
   nodePub_.publish( msg );
 }
 
+#ifndef NO_MEDIA
 void PyRIDEMsgBridge::startImageStream()
 {
   if (!isRunning_) {
@@ -247,6 +261,7 @@ void PyRIDEMsgBridge::stopAudioStream()
   audioReceiver_ = NULL;
   ROS_INFO( "Stop audio data streaming service." );
 }
+#endif
 
 void PyRIDEMsgBridge::processPyConnectMessage()
 {
