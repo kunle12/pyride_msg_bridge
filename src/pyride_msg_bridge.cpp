@@ -26,7 +26,7 @@ static const int kVideoStreamPort = 43096;
 static const int kAudioStreamPort = 42096;
 static const int kImageWidth = 640;
 static const int kImageHeight = 480;
-static const int kAudioSampleRate = 16000;
+static const int kAudioSampleRate = 48000;
 static const int kAudioFrameSize = 256;
 static const int kAudioPacketBytes = 46;
 #endif
@@ -69,6 +69,7 @@ void PyRIDEMsgBridge::init()
   priNode_.param( "audio_data_port", AudioPort, kAudioStreamPort );
   priNode_.param( "image_data_width", imageWidth_, kImageWidth );
   priNode_.param( "image_data_height", imageHeight_, kImageHeight );
+  priNode_.param( "audio_sample_rate", sampleRate_, kAudioSampleRate );
 
   imgPub_ = imgTrans_.advertise( "/pyride/image", 1,
       boost::bind( &PyRIDEMsgBridge::startImageStream, this ),
@@ -221,7 +222,7 @@ void PyRIDEMsgBridge::startAudioStream()
 
   PYCONNECT_ATTRIBUTE_UPDATE( IsAudioStreaming );
 
-  audioReceiver_ = new AudioDataReceiver( AudioPort, kAudioSampleRate, kAudioFrameSize, kAudioPacketBytes );
+  audioReceiver_ = new AudioDataReceiver( AudioPort, sampleRate_, kAudioFrameSize, kAudioPacketBytes );
   audio_grab_thread_ = new boost::thread( &PyRIDEMsgBridge::doAudioGrabbing, this );
   ROS_INFO( "Start audio data streaming service." );
 }

@@ -98,6 +98,7 @@ private:
 #ifndef NO_MEDIA
   int imageWidth_;
   int imageHeight_;
+  int sampleRate_;
   long imgcnt_;
 
   int imgRequests_;
