@@ -162,6 +162,8 @@ add_executable(${PROJECT_NAME}
 ## same as for the library above
 # add_dependencies(${PROJECT_NAME}_node ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 
+add_dependencies(${PROJECT_NAME} ${catkin_EXPORTED_TARGETS})
+
 add_library(celt STATIC IMPORTED)
 set_target_properties(celt PROPERTIES IMPORTED_LOCATION ${PROJECT_SOURCE_DIR}/lib/libcelt0.a)
 
