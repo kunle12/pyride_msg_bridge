@@ -4,3 +4,6 @@
 [submodule "pyridecore"]
 	path = pyridecore
 	url = https://github.com/uts-magic-lab/pyride_core
+[submodule "opus"]
+	path = opus
+	url = https://github.com/xiph/opus

@@ -164,13 +164,13 @@ add_executable(${PROJECT_NAME}
 
 add_dependencies(${PROJECT_NAME} ${catkin_EXPORTED_TARGETS})
 
-add_library(celt STATIC IMPORTED)
-set_target_properties(celt PROPERTIES IMPORTED_LOCATION ${PROJECT_SOURCE_DIR}/lib/libcelt0.a)
+add_library(opus STATIC IMPORTED)
+set_target_properties(opus PROPERTIES IMPORTED_LOCATION ${PROJECT_SOURCE_DIR}/lib/libopus.a)
 
 ## Specify libraries to link a library or executable target against
 target_link_libraries(${PROJECT_NAME}
   pthread 
-  celt
+  opus
   ucommon commoncpp ccrtp crypto jpeg
   #ccrtp1 ccgnu2 crypto jpeg
   ${catkin_LIBRARIES}
