@@ -60,7 +60,12 @@ void PyRIDEMsgBridge::nodeStatusCB( const pyride_common_msgs::NodeStatusConstPtr
 
   // put in a json string format
   ss << "{\"node\": \"" << msg->node_id << "\", \"timestamp\": " << ((double)msg->header.stamp.sec + (double)msg->header.stamp.nsec / 1E9);
-  ss << ", \"message\": \"" << msg->status_text << "\", \"priority\": " << msg->priority << "}";
+  if (msg->status_text.length() > 2 && (msg->status_text[0] =='{' || msg->status_text[0] =='[') ) {
+    ss << ", \"message\": " << msg->status_text << ", \"priority\": " << (int)msg->priority << "}";
+  }
+  else {
+    ss << ", \"message\": \"" << msg->status_text << "\", \"priority\": " << (int)msg->priority << "}";
+  }
 
   NodeStatusUpdate = ss.str();
   PYCONNECT_ATTRIBUTE_UPDATE( NodeStatusUpdate );
