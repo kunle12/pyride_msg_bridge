@@ -4,6 +4,3 @@
 [submodule "pyridecore"]
 	path = pyridecore
 	url = https://github.com/uts-magic-lab/pyride_core
-[submodule "celt"]
-	path = celt
-	url = http://git.xiph.org/celt.git
