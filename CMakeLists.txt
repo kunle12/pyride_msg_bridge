@@ -1,9 +1,13 @@
 cmake_minimum_required(VERSION 2.8.3)
 project(pyride_msg_bridge)
 
+option(WITH_SEPARATE_MEDIA "Option split media bridge into a separate node" OFF)
+
 ## Add support for C++11, supported in ROS Kinetic and newer
 add_definitions(-DLINUX -DUSE_ROS -DRELEASE -DPRODUCT_RELEASE)
-#add_definitions(-DNO_MEDIA)
+if (WITH_SEPARATE_MEDIA)
+add_definitions(-DNO_MEDIA)
+endif()
 
 ## Find catkin macros and libraries
 ## if COMPONENTS list like find_package(catkin REQUIRED COMPONENTS xyz)
@@ -141,6 +145,25 @@ include_directories(
 ## Declare a C++ executable
 ## With catkin_make all packages are built within a single CMake context
 ## The recommended prefix ensures that target names across packages don't collide
+if (WITH_SEPARATE_MEDIA)
+add_executable(${PROJECT_NAME}
+                              src/main.cpp
+                              pyconnect/PyConnectCommon.cpp
+                              pyconnect/PyConnectObjComm.cpp
+                              pyconnect/PyConnectNetComm.cpp
+                              pyconnect/PyConnectWrapper.cpp
+                              src/pyride_msg_bridge.cpp)
+add_executable(pyride_media_bridge
+                              src/main_media.cpp
+                              pyridecore/RTPDataReceiver.cpp
+                              pyridecore/ImageDataReceiver.cpp
+                              pyridecore/AudioDataReceiver.cpp
+                              pyconnect/PyConnectCommon.cpp
+                              pyconnect/PyConnectObjComm.cpp
+                              pyconnect/PyConnectNetComm.cpp
+                              pyconnect/PyConnectWrapper.cpp
+                              src/pyride_media_bridge.cpp)
+else()
 add_executable(${PROJECT_NAME}
                               src/main.cpp
                               pyridecore/RTPDataReceiver.cpp
@@ -151,6 +174,7 @@ add_executable(${PROJECT_NAME}
                               pyconnect/PyConnectNetComm.cpp
                               pyconnect/PyConnectWrapper.cpp
                               src/pyride_msg_bridge.cpp)
+endif()
 
 ## Rename C++ executable without prefix
 ## The above recommended prefix causes long target names, the following renames the
@@ -168,6 +192,19 @@ add_library(opus STATIC IMPORTED)
 set_target_properties(opus PROPERTIES IMPORTED_LOCATION ${PROJECT_SOURCE_DIR}/lib/libopus.a)
 
 ## Specify libraries to link a library or executable target against
+if (WITH_SEPARATE_MEDIA)
+target_link_libraries(${PROJECT_NAME}
+  pthread crypto
+  ${catkin_LIBRARIES}
+)
+target_link_libraries(pyride_media_bridge
+  pthread 
+  opus
+  ucommon commoncpp ccrtp crypto jpeg
+  #ccrtp1 ccgnu2 crypto jpeg
+  ${catkin_LIBRARIES}
+)
+else()
 target_link_libraries(${PROJECT_NAME}
   pthread 
   opus
@@ -175,6 +212,7 @@ target_link_libraries(${PROJECT_NAME}
   #ccrtp1 ccgnu2 crypto jpeg
   ${catkin_LIBRARIES}
 )
+endif()
 
 #############
 ## Install ##

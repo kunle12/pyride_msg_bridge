@@ -3,4 +3,10 @@
     <param name="image_data_port" type="int" value="41096"/>
     <param name="audio_data_port" type="int" value="41196"/>    
   </node>
+  <!--
+  <node pkg="pyride_media_bridge" type="pyride_media_bridge" name="pyride_media_bridge" output="screen">
+    <param name="image_data_port" type="int" value="41096"/>
+    <param name="audio_data_port" type="int" value="41196"/>    
+  </node>
+  -->
 </launch>
