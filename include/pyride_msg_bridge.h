@@ -50,34 +50,20 @@ public:
 
   void continueProcessing();
 
-  PYCONNECT_NETCOMM_DECLARE;
-  PYCONNECT_WRAPPER_DECLARE;
-
-  PYCONNECT_METHOD_ACCESS_VOID_RETURN( sendNodeMessage, ARGTYPE( string ), ARGTYPE( string ) );
-
-  std::string NodeStatus;
-#ifndef NO_MEDIA
-  int VideoPort;
-  bool IsImageStreaming;
-  int AudioPort;
-  bool IsAudioStreaming;
-#endif
-
-  PYCONNECT_RO_ATTRIBUTE( NodeStatus );
-#ifndef NO_MEDIA
-  PYCONNECT_RO_ATTRIBUTE( VideoPort );
-  PYCONNECT_RO_ATTRIBUTE( IsImageStreaming );
-  PYCONNECT_RO_ATTRIBUTE( AudioPort );
-  PYCONNECT_RO_ATTRIBUTE( IsAudioStreaming );
-#endif
-
 private:
   NodeHandle priNode_;
 
   Publisher nodePub_;
   Subscriber nodeSub_;
 
+  std::string NodeStatus;
+
 #ifndef NO_MEDIA
+  int VideoPort;
+  bool IsImageStreaming;
+  int AudioPort;
+  bool IsAudioStreaming;
+
   image_transport::ImageTransport imgTrans_;
   image_transport::Publisher imgPub_;
 
@@ -117,6 +103,21 @@ private:
   void processPyConnectMessage();
 
   void nodeStatusCB( const pyride_common_msgs::NodeStatusConstPtr & msg );
+
+public:
+  PYCONNECT_NETCOMM_DECLARE;
+  PYCONNECT_WRAPPER_DECLARE;
+
+  PYCONNECT_MODULE_DESCRIPTION( "A ROS bridge to connect (Non-ROS) PyRIDE with ROS ecosystem." );
+  PYCONNECT_METHOD( sendNodeMessage, "send message to a ROS node through pyride_common_msgs" );
+
+  PYCONNECT_RO_ATTRIBUTE( NodeStatus, "Node status update message" );
+#ifndef NO_MEDIA
+  PYCONNECT_RO_ATTRIBUTE( VideoPort, "UDP port for receiving image stream." );
+  PYCONNECT_RO_ATTRIBUTE( IsImageStreaming, "image streaming flag." );
+  PYCONNECT_RO_ATTRIBUTE( AudioPort, "UDP port for receiving audio data stream." );
+  PYCONNECT_RO_ATTRIBUTE( IsAudioStreaming, "audio data streaming flag." );
+#endif
 };
 
 } // namespace pyride

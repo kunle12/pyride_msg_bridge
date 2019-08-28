@@ -3,8 +3,8 @@ project(pyride_msg_bridge)
 
 option(WITH_SEPARATE_MEDIA "Option split media bridge into a separate node" OFF)
 
-## Add support for C++11, supported in ROS Kinetic and newer
-add_definitions(-DLINUX -DUSE_ROS -DRELEASE -DPRODUCT_RELEASE)
+## Add support for C++14, supported in ROS Kinetic and newer
+add_definitions(-DLINUX -DUSE_ROS -DRELEASE -DPRODUCT_RELEASE -std=c++14)
 if (WITH_SEPARATE_MEDIA)
 add_definitions(-DNO_MEDIA)
 endif()

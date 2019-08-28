@@ -43,19 +43,6 @@ public:
 
   void continueProcessing();
 
-  PYCONNECT_NETCOMM_DECLARE;
-  PYCONNECT_WRAPPER_DECLARE;
-
-  int VideoPort;
-  bool IsImageStreaming;
-  int AudioPort;
-  bool IsAudioStreaming;
-
-  PYCONNECT_RO_ATTRIBUTE( VideoPort );
-  PYCONNECT_RO_ATTRIBUTE( IsImageStreaming );
-  PYCONNECT_RO_ATTRIBUTE( AudioPort );
-  PYCONNECT_RO_ATTRIBUTE( IsAudioStreaming );
-
 private:
   NodeHandle priNode_;
 
@@ -73,6 +60,11 @@ private:
   pyride_remote::AudioDataReceiver * audioReceiver_;
 
   bool isRunning_;
+
+  int VideoPort;
+  bool IsImageStreaming;
+  int AudioPort;
+  bool IsAudioStreaming;
 
   int imageWidth_;
   int imageHeight_;
@@ -92,6 +84,15 @@ private:
   void doAudioGrabbing();
 
   void processPyConnectMessage();
+public:
+  PYCONNECT_NETCOMM_DECLARE;
+  PYCONNECT_WRAPPER_DECLARE;
+
+  PYCONNECT_MODULE_DESCRIPTION( "A ROS media bridge to connect (Non-ROS) PyRIDE with ROS ecosystem." );
+  PYCONNECT_RO_ATTRIBUTE( VideoPort, "UDP port for receiving image stream." );
+  PYCONNECT_RO_ATTRIBUTE( IsImageStreaming, "image streaming flag." );
+  PYCONNECT_RO_ATTRIBUTE( AudioPort, "UDP port for receiving audio data stream." );
+  PYCONNECT_RO_ATTRIBUTE( IsAudioStreaming, "audio data streaming flag." );
 };
 
 } // namespace pyride

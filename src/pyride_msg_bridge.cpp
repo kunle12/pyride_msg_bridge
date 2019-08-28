@@ -44,17 +44,16 @@ PyRIDEMsgBridge::PyRIDEMsgBridge() :
 #endif
   isRunning_( false )
 {
-  PYCONNECT_DECLARE_MODULE( PyRIDEMsgBridge, "A ROS bridge to connect (Non-ROS) PyRIDE with ROS ecosystem." );
-  PYCONNECT_RO_ATTRIBUTE_DECLARE( NodeStatus, std::string, "Node status update message" );
+  EXPORT_PYCONNECT_MODULE;
+  EXPORT_PYCONNECT_RO_ATTRIBUTE( NodeStatus );
 #ifndef NO_MEDIA
-  PYCONNECT_RO_ATTRIBUTE_DECLARE( VideoPort, int, "UDP port for receiving image stream." );
-  PYCONNECT_RO_ATTRIBUTE_DECLARE( IsImageStreaming, bool, "image streaming flag." );
-  PYCONNECT_RO_ATTRIBUTE_DECLARE( AudioPort, int, "UDP port for receiving audio data stream." );
-  PYCONNECT_RO_ATTRIBUTE_DECLARE( IsAudioStreaming, bool, "audio data streaming flag." );
+  EXPORT_PYCONNECT_RO_ATTRIBUTE( VideoPort );
+  EXPORT_PYCONNECT_RO_ATTRIBUTE( IsImageStreaming );
+  EXPORT_PYCONNECT_RO_ATTRIBUTE( AudioPort );
+  EXPORT_PYCONNECT_RO_ATTRIBUTE( IsAudioStreaming );
 #endif
 
-  PYCONNECT_METHOD_DECLARE( sendNodeMessage, void, "send message to a ROS node through pyride_common_msgs", ARG( node, std::string, "node name" ) \
-      ARG( command, std::string, "command message to the node" ) );
+  EXPORT_PYCONNECT_METHOD( sendNodeMessage );
 }
 
 PyRIDEMsgBridge::~PyRIDEMsgBridge()

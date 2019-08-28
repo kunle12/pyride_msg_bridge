@@ -37,11 +37,11 @@ PyRIDEMediaBridge::PyRIDEMediaBridge() :
   imgcnt_( 0L ),
   isRunning_( false )
 {
-  PYCONNECT_DECLARE_MODULE( PyRIDEMediaBridge, "A ROS media bridge to connect (Non-ROS) PyRIDE with ROS ecosystem." );
-  PYCONNECT_RO_ATTRIBUTE_DECLARE( VideoPort, int, "UDP port for receiving image stream." );
-  PYCONNECT_RO_ATTRIBUTE_DECLARE( IsImageStreaming, bool, "image streaming flag." );
-  PYCONNECT_RO_ATTRIBUTE_DECLARE( AudioPort, int, "UDP port for receiving audio data stream." );
-  PYCONNECT_RO_ATTRIBUTE_DECLARE( IsAudioStreaming, bool, "audio data streaming flag." );
+  EXPORT_PYCONNECT_MODULE;
+  EXPORT_PYCONNECT_RO_ATTRIBUTE( VideoPort );
+  EXPORT_PYCONNECT_RO_ATTRIBUTE( IsImageStreaming );
+  EXPORT_PYCONNECT_RO_ATTRIBUTE( AudioPort );
+  EXPORT_PYCONNECT_RO_ATTRIBUTE( IsAudioStreaming );
 }
 
 PyRIDEMediaBridge::~PyRIDEMediaBridge()
