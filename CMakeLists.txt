@@ -1,8 +1,8 @@
 cmake_minimum_required(VERSION 2.8.3)
 project(pyride_msg_bridge)
 
-## Add support for C++11, supported in ROS Kinetic and newer
-add_definitions(-DLINUX -DUSE_ROS -DRELEASE -DPRODUCT_RELEASE -DHAS_OWN_MAIN_LOOP)
+## Add support for C++14, supported in ROS Kinetic and newer
+add_definitions(-DLINUX -DUSE_ROS -DRELEASE -DPRODUCT_RELEASE -DHAS_OWN_MAIN_LOOP -std=c++14)
 
 ## Find catkin macros and libraries
 ## if COMPONENTS list like find_package(catkin REQUIRED COMPONENTS xyz)

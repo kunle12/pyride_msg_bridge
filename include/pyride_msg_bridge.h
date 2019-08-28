@@ -46,26 +46,28 @@ public:
 
   void continueProcessing();
 
-  PYCONNECT_NETCOMM_DECLARE;
-  PYCONNECT_WRAPPER_DECLARE;
-
-  PYCONNECT_METHOD_ACCESS_VOID_RETURN( sendNodeMessage, ARGTYPE( string ), ARGTYPE( string ), ARGTYPE( int ) );
-
-  std::string NodeStatusUpdate;
-
-  PYCONNECT_RO_ATTRIBUTE( NodeStatusUpdate );
-
 private:
   NodeHandle priNode_;
 
   Publisher nodePub_;
   Subscriber nodeSub_;
 
+  std::string NodeStatusUpdate;
+
   bool isRunning_;
   int maxFD_;
   fd_set masterFDSet_;
 
   void nodeStatusCB( const pyride_common_msgs::NodeStatusConstPtr & msg );
+
+public:
+  PYCONNECT_NETCOMM_DECLARE;
+  PYCONNECT_WRAPPER_DECLARE;
+
+  PYCONNECT_MODULE_DESCRIPTION( "A ROS bridge to connect (Non-ROS) PyRIDE with ROS ecosystem." );
+  PYCONNECT_METHOD( sendNodeMessage, "send message to a ROS node through pyride_common_msgs" );
+
+  PYCONNECT_RO_ATTRIBUTE( NodeStatusUpdate, "Node status update message" );
 };
 
 } // namespace pyride

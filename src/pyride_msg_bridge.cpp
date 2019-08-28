@@ -14,11 +14,9 @@ namespace pyride {
 PyRIDEMsgBridge::PyRIDEMsgBridge() :
   isRunning_( false )
 {
-  PYCONNECT_DECLARE_MODULE( PyRIDEMsgBridge, "A ROS bridge to connect (Non-ROS) PyRIDE with ROS ecosystem." );
-  PYCONNECT_RO_ATTRIBUTE_DECLARE( NodeStatusUpdate, std::string, "Node status update message" );
-
-  PYCONNECT_METHOD_DECLARE( sendNodeMessage, void, "send message to a ROS node through pyride_common_msgs", ARG( node, std::string, "node name" ) \
-      ARG( command, std::string, "command message to the node" ) ARG( priority, int, "message priority" ) );
+  EXPORT_PYCONNECT_MODULE;
+  EXPORT_PYCONNECT_RO_ATTRIBUTE( NodeStatusUpdate );
+  EXPORT_PYCONNECT_METHOD( sendNodeMessage );
 
   FD_ZERO( &masterFDSet_ );
 }
