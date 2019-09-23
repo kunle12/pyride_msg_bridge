@@ -17,6 +17,7 @@ PyRIDEMsgBridge::PyRIDEMsgBridge() :
   EXPORT_PYCONNECT_MODULE;
   EXPORT_PYCONNECT_RO_ATTRIBUTE( NodeStatusUpdate );
   EXPORT_PYCONNECT_METHOD( sendNodeMessage );
+  EXPORT_PYCONNECT_METHOD( sendNodeMessageWithPriority );
 
   FD_ZERO( &masterFDSet_ );
 }
@@ -69,7 +70,12 @@ void PyRIDEMsgBridge::nodeStatusCB( const pyride_common_msgs::NodeStatusConstPtr
   PYCONNECT_ATTRIBUTE_UPDATE( NodeStatusUpdate );
 }
 
-void PyRIDEMsgBridge::sendNodeMessage( const std::string & node, const std::string & command, const int priority )
+void PyRIDEMsgBridge::sendNodeMessage( const std::string & node, const std::string & command )
+{
+  this->sendNodeMessageWithPriority( node, command, 0 );
+}
+
+void PyRIDEMsgBridge::sendNodeMessageWithPriority( const std::string & node, const std::string & command, const int priority )
 {
   pyride_common_msgs::NodeMessage msg;
   msg.header.stamp = ros::Time::now();

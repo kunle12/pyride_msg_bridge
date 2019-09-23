@@ -42,7 +42,8 @@ public:
 
   void stopProcess();
 
-  void sendNodeMessage( const std::string & node, const std::string & command, const int priority );
+  void sendNodeMessage( const std::string & node, const std::string & command );
+  void sendNodeMessageWithPriority( const std::string & node, const std::string & command, const int priority );
 
   void continueProcessing();
 
@@ -66,6 +67,7 @@ public:
 
   PYCONNECT_MODULE_DESCRIPTION( "A ROS bridge to connect (Non-ROS) PyRIDE with ROS ecosystem." );
   PYCONNECT_METHOD( sendNodeMessage, "send message to a ROS node through pyride_common_msgs" );
+  PYCONNECT_METHOD( sendNodeMessageWithPriority, "send message with priority to a ROS node through pyride_common_msgs" );
 
   PYCONNECT_RO_ATTRIBUTE( NodeStatusUpdate, "Node status update message" );
 };
