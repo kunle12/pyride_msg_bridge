@@ -15,9 +15,9 @@ PyRIDEMsgBridge::PyRIDEMsgBridge() :
   isRunning_( 0 )
 {
   EXPORT_PYCONNECT_MODULE;
-  EXPORT_PYCONNECT_RO_ATTRIBUTE( NodeStatusUpdate );
-  EXPORT_PYCONNECT_METHOD( sendNodeMessage );
-  EXPORT_PYCONNECT_METHOD( sendNodeMessageWithPriority );
+  EXPORT_PYCONNECT_RO_ATTRIBUTE( NodeStatus );
+  EXPORT_PYCONNECT_METHOD( sendMessageToNode );
+  EXPORT_PYCONNECT_METHOD( sendMessageToNodeWithPriority );
 
   FD_ZERO( &masterFDSet_ );
 }
@@ -46,7 +46,7 @@ void PyRIDEMsgBridge::fini()
   PYCONNECT_NETCOMM_FINI;
 }
 
-/*! \typedef onNodeStatusUpdate( data )
+/*! \typedef onNodeStatus( data )
  *  \memberof PyRIDEMsgBridge.
  *  \brief Callback function invoked when an external ROS node dispatch status update message
  *   to PyRIDE on pyride_reem/node_status topic.
@@ -66,16 +66,16 @@ void PyRIDEMsgBridge::nodeStatusCB( const pyride_common_msgs::NodeStatusConstPtr
     ss << ", \"message\": \"" << msg->status_text << "\", \"priority\": " << (int)msg->priority << "}";
   }
 
-  NodeStatusUpdate = ss.str();
-  PYCONNECT_ATTRIBUTE_UPDATE( NodeStatusUpdate );
+  NodeStatus = ss.str();
+  PYCONNECT_ATTRIBUTE_UPDATE( NodeStatus );
 }
 
-void PyRIDEMsgBridge::sendNodeMessage( const std::string & node, const std::string & command )
+void PyRIDEMsgBridge::sendMessageToNode( const std::string & node, const std::string & command )
 {
-  this->sendNodeMessageWithPriority( node, command, 0 );
+  this->sendMessageToNodeWithPriority( node, command, 0 );
 }
 
-void PyRIDEMsgBridge::sendNodeMessageWithPriority( const std::string & node, const std::string & command, const int priority )
+void PyRIDEMsgBridge::sendMessageToNodeWithPriority( const std::string & node, const std::string & command, const int priority )
 {
   pyride_common_msgs::NodeMessage msg;
   msg.header.stamp = ros::Time::now();

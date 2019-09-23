@@ -43,8 +43,8 @@ public:
 
   void stopProcess();
 
-  void sendNodeMessage( const std::string & node, const std::string & command );
-  void sendNodeMessageWithPriority( const std::string & node, const std::string & command, const int priority );
+  void sendMessageToNode( const std::string & node, const std::string & command );
+  void sendMessageToNodeWithPriority( const std::string & node, const std::string & command, const int priority );
 
   void continueProcessing();
 
@@ -54,7 +54,7 @@ private:
   Publisher nodePub_;
   Subscriber nodeSub_;
 
-  std::string NodeStatusUpdate;
+  std::string NodeStatus;
 
   volatile sig_atomic_t isRunning_;
   int maxFD_;
@@ -67,10 +67,10 @@ public:
   PYCONNECT_WRAPPER_DECLARE;
 
   PYCONNECT_MODULE_DESCRIPTION( "A ROS bridge to connect (Non-ROS) PyRIDE with ROS ecosystem." );
-  PYCONNECT_METHOD( sendNodeMessage, "send message to a ROS node through pyride_common_msgs" );
-  PYCONNECT_METHOD( sendNodeMessageWithPriority, "send message with priority to a ROS node through pyride_common_msgs" );
+  PYCONNECT_METHOD( sendMessageToNode, "send message to a ROS node through pyride_common_msgs" );
+  PYCONNECT_METHOD( sendMessageToNodeWithPriority, "send message with priority to a ROS node through pyride_common_msgs" );
 
-  PYCONNECT_RO_ATTRIBUTE( NodeStatusUpdate, "Node status update message" );
+  PYCONNECT_RO_ATTRIBUTE( NodeStatus, "Node status update message" );
 };
 
 } // namespace pyride
