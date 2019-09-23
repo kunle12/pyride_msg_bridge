@@ -12,7 +12,7 @@
 namespace pyride {
 
 PyRIDEMsgBridge::PyRIDEMsgBridge() :
-  isRunning_( false )
+  isRunning_( 0 )
 {
   EXPORT_PYCONNECT_MODULE;
   EXPORT_PYCONNECT_RO_ATTRIBUTE( NodeStatusUpdate );
@@ -88,15 +88,15 @@ void PyRIDEMsgBridge::sendNodeMessageWithPriority( const std::string & node, con
 
 void PyRIDEMsgBridge::stopProcess()
 {
-  isRunning_ = false;
+  isRunning_ = 0;
 }
 
 void PyRIDEMsgBridge::continueProcessing()
 {
   fd_set readyFDSet;
+  isRunning_ = 1;
 
   while (isRunning_) {
-    ros::spinOnce();
     struct timeval timeout, timeStamp;
     timeout.tv_sec = 0;
     timeout.tv_usec = 100000; // 100ms
@@ -106,7 +106,10 @@ void PyRIDEMsgBridge::continueProcessing()
     int maxFD = maxFD_;
     select( maxFD+1, &readyFDSet, NULL, NULL, &timeout ); // non-blocking select
 
-    PYCONNECT_NETCOMM_PROCESS_DATA( &readyFDSet );
+    if (isRunning_) {
+      PYCONNECT_NETCOMM_PROCESS_DATA( &readyFDSet );
+    }
+    ros::spinOnce();
   }
 }
 

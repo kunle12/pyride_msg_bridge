@@ -12,6 +12,7 @@
 #include <sys/time.h>
 #include <sys/types.h>
 #include <unistd.h>
+#include <signal.h>
 
 #include <iostream>
 #include <boost/shared_ptr.hpp>
@@ -55,7 +56,7 @@ private:
 
   std::string NodeStatusUpdate;
 
-  bool isRunning_;
+  volatile sig_atomic_t isRunning_;
   int maxFD_;
   fd_set masterFDSet_;
 
