@@ -10,6 +10,7 @@ add_definitions(-DLINUX -DUSE_ROS -DRELEASE -DPRODUCT_RELEASE -DHAS_OWN_MAIN_LOO
 find_package(catkin REQUIRED COMPONENTS
   pyride_common_msgs
   roscpp
+  actionlib
   std_msgs
 )
 
