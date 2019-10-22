@@ -40,18 +40,7 @@ void PyRIDEMsgBridge::init()
   nodePub_ = priNode_.advertise<pyride_common_msgs::NodeMessage>( "node_message", 1 );
   nodeSub_ = priNode_.subscribe( "node_status", 10, &PyRIDEMsgBridge::nodeStatusCB, this );
 
-  int trials = 0;
   faceEnrolmentClient_ = new ObjectEnrolmentClient( "/face_server/face_enrolment", true );
-
-  while (!faceEnrolmentClient_->waitForServer( ros::Duration( 5.0 ) ) && trials < 2) {
-    ROS_INFO( "Waiting for the face recognition server server to come up." );
-    trials++;
-  }
-  if (!faceEnrolmentClient_->isServerConnected()) {
-    ROS_INFO( "face recognition server is down." );
-    delete faceEnrolmentClient_;
-    faceEnrolmentClient_ = NULL;
-  }
 
   isRunning_ = true;
 }
@@ -112,11 +101,21 @@ void PyRIDEMsgBridge::sendMessageToNodeWithPriority( const std::string & node, c
 
 bool PyRIDEMsgBridge::enrolHumanFace( const std::string & face_name, const int required_samples )
 {
-  if (!faceEnrolmentClient_)
-    return false;
-
   if (face_name.length() == 0 || required_samples <= 0) // really just check for negative sample.
     return false;
+
+  if (!faceEnrolmentClient_->isServerConnected()) {
+    ROS_INFO( "face recognition server is not connected, trying to connect..." );
+    int trials = 0;
+    while (!faceEnrolmentClient_->waitForServer( ros::Duration( 1.0 ) ) && trials < 2) {
+      ROS_INFO( "Waiting for the face recognition server server to come up." );
+      trials++;
+    }
+    if (!faceEnrolmentClient_->isServerConnected()) {
+      ROS_ERROR( "face recognition server is down." );
+      return false;
+    }
+  }
 
   pyride_common_msgs::ObjectEnrolmentGoal goal;
 
