@@ -51,6 +51,7 @@ public:
   void sendMessageToNode( const std::string & node, const std::string & command );
   void sendMessageToNodeWithPriority( const std::string & node, const std::string & command, const int priority );
   bool enrolHumanFace( const std::string & face_name, const int required_samples );
+  bool renameFace( const std::string & old_name, const std::string & new_name );
 
   void continueProcessing();
 
@@ -61,6 +62,7 @@ private:
   Subscriber nodeSub_;
 
   ObjectEnrolmentClient * faceEnrolmentClient_;
+  ServiceClient renameFaceClient_;
 
   std::string NodeStatus;
   bool EnrolmentStatus;
@@ -82,6 +84,7 @@ public:
   PYCONNECT_METHOD( sendMessageToNode, "send message to a ROS node through pyride_common_msgs" );
   PYCONNECT_METHOD( sendMessageToNodeWithPriority, "send message with priority to a ROS node through pyride_common_msgs" );
   PYCONNECT_METHOD( enrolHumanFace, "register a human face with an associated name." );
+  PYCONNECT_METHOD( renameFace, "update human face with an new name." );
 
   PYCONNECT_RO_ATTRIBUTE( NodeStatus, "Node status update message" );
   PYCONNECT_RO_ATTRIBUTE( EnrolmentStatus, "Face enrolment status update message" );

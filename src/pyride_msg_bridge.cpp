@@ -6,6 +6,7 @@
 //  Copyright (c) 2017 Xun Wang. All rights reserved.
 //
 
+#include <pyride_common_msgs/RenameObject.h>
 #include <pyride_common_msgs/NodeMessage.h>
 #include "pyride_msg_bridge.h"
 
@@ -22,6 +23,7 @@ PyRIDEMsgBridge::PyRIDEMsgBridge() :
   EXPORT_PYCONNECT_METHOD( sendMessageToNode );
   EXPORT_PYCONNECT_METHOD( sendMessageToNodeWithPriority );
   EXPORT_PYCONNECT_METHOD( enrolHumanFace );
+  EXPORT_PYCONNECT_METHOD( renameFace );
 
   FD_ZERO( &masterFDSet_ );
 }
@@ -41,7 +43,7 @@ void PyRIDEMsgBridge::init()
   nodeSub_ = priNode_.subscribe( "node_status", 10, &PyRIDEMsgBridge::nodeStatusCB, this );
 
   faceEnrolmentClient_ = new ObjectEnrolmentClient( "/face_server/face_enrolment", true );
-
+  renameFaceClient_ = priNode_.serviceClient<pyride_common_msgs::RenameObject>( "/face_server/rename_face" );
   isRunning_ = true;
 }
 
@@ -145,6 +147,21 @@ void PyRIDEMsgBridge::doneFaceEnrolmentAction( const actionlib::SimpleClientGoal
   EnrolmentStatus = false;
 
   ROS_INFO( "On face enrolment finished in state [%s]", state.toString().c_str());
+}
+
+bool PyRIDEMsgBridge::renameFace( const std::string & old_name, const std::string & new_name )
+{
+  if (!renameFaceClient_.exists()) {
+    return false;
+  }
+  pyride_common_msgs::RenameObject srvMsg;
+
+  srvMsg.request.old_name = old_name;
+  srvMsg.request.new_name = new_name;
+  if (renameFaceClient_.call( srvMsg )) {
+    return srvMsg.response.success;
+  }
+  return false;
 }
 
 void PyRIDEMsgBridge::stopProcess()
