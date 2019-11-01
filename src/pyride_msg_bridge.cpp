@@ -22,7 +22,7 @@ PyRIDEMsgBridge::PyRIDEMsgBridge() :
   EXPORT_PYCONNECT_RO_ATTRIBUTE( EnrolmentStatus );
   EXPORT_PYCONNECT_METHOD( sendMessageToNode );
   EXPORT_PYCONNECT_METHOD( sendMessageToNodeWithPriority );
-  EXPORT_PYCONNECT_METHOD( enrolHumanFace );
+  EXPORT_PYCONNECT_METHOD( enrolFace );
   EXPORT_PYCONNECT_METHOD( renameFace );
 
   FD_ZERO( &masterFDSet_ );
@@ -101,7 +101,7 @@ void PyRIDEMsgBridge::sendMessageToNodeWithPriority( const std::string & node, c
   nodePub_.publish( msg );
 }
 
-bool PyRIDEMsgBridge::enrolHumanFace( const std::string & face_name, const int required_samples )
+bool PyRIDEMsgBridge::enrolFace( const std::string & face_name, const int required_samples )
 {
   if (face_name.length() == 0 || required_samples <= 0) // really just check for negative sample.
     return false;
